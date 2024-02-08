@@ -13,5 +13,6 @@ namespace Domain.Entities.Common
         public DateTime UpdatedDate { get; set; }
         public Guid? CreatedBy{ get; set; }
         public Guid? UpdatedBy { get; set; }
+        public bool Status { get; set; }
     }
 }
