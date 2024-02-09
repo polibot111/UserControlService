@@ -1,6 +1,7 @@
 using Application;
 using Infrastructure;
 using Persistence;
+using Presentation.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+#region Middlewares
+
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ResponseWrapperMiddleware>();
+
+#endregion
 
 app.UseHttpsRedirection();
 
