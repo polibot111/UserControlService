@@ -1,5 +1,6 @@
 ﻿using Application.CQRS.Department;
 using Application.DTO.Department;
+using Application.PaginationParameters;
 using Application.Repositories.Department;
 using Application.Services;
 using AutoMapper;
@@ -26,6 +27,23 @@ namespace Persistence.Services
         readonly private IMapper _mapper;
 
 
+        public async Task<PaginationResult<DepartmentDTO>> GetAllWithPaginationAsync(DepartmentDetailPaginationQuery query)
+        {
+            var result = await _readDepartment.PaginateAsync(
+                predicate: x => true,
+                pagination: query);
+            PaginationResult<DepartmentDTO> paginationResult = new()
+            {
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalCount = result.TotalCount
+            };
+
+            paginationResult.Items = result.Items.ProjectTo<DepartmentDTO>(_mapper.ConfigurationProvider);
+
+            return paginationResult;
+
+        }
         public async Task<IQueryable<DepartmentDTO>> GetAllAsync()
         {
             var Departments = await _readDepartment.GetAll();
