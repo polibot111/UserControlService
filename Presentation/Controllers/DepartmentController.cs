@@ -1,4 +1,6 @@
-﻿using Application.Repositories.Department;
+﻿using Application.CQRS.Department;
+using Application.Repositories.Department;
+using Application.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,54 +10,41 @@ namespace Presentation.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
-    
 
-        public DepartmentController(IDepartmentReadRepo readRepo, IDepartmentWriteRepo writeRepo)
+        public DepartmentController(IDepartmentService departmentService)
         {
-            _readRepo = readRepo;
-            _writeRepo = writeRepo;
+            _departmentService = departmentService;
         }
-
-        readonly private IDepartmentWriteRepo _writeRepo;
-        readonly private IDepartmentReadRepo _readRepo;
+        readonly private IDepartmentService _departmentService;
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var Departments = _readRepo.GetAll();
-            return Ok(Departments);
+            return Ok(await _departmentService.GetAllAsync());
+        }
+
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> GetById([FromRoute] DepartmentDetailQuery request)
+        {
+            return Ok(await _departmentService.GetByIdAsync(request));
         }
 
         [HttpPost]
-        public async Task Get()
+        public async Task<IActionResult> AddDepartment([FromBody] DepartmentInsertCommand request)
         {
-            await _writeRepo.AddRangeAsync(new()
-            {
-                new(){Id = Guid.NewGuid(), DepartmentName="Ataşehir"},
-                new(){Id = Guid.NewGuid(), DepartmentName="Pendik"},
-                new(){Id = Guid.NewGuid(), DepartmentName="Avcılar"},
-                new(){Id = Guid.NewGuid(), DepartmentName="Sarıyer"},
-                new(){Id = Guid.NewGuid(), DepartmentName="Kadıköy"},
-                new(){Id = Guid.NewGuid(), DepartmentName="Fatih"},
-                new(){Id = Guid.NewGuid(), DepartmentName="Bağcılar"},
-            });
-            await _writeRepo.SaveAsync();
+            return Ok(await _departmentService.AddAsync(request));
         }
 
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        [HttpPut]
+        public async Task<IActionResult> UpdateDepartment([FromBody] DepartmentUpdateCommand request)
         {
-            var department = await _readRepo.GetByIdAsync(id);
-            return Ok(department);
+            return Ok(await _departmentService.UpdateAsync(request));
         }
 
-        [HttpPost("{id}")]
-        public async Task<IActionResult> Update(string id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteDepartment([FromBody] DepartmentUpdateStatusCommand request)
         {
-            bool department = await _writeRepo.UpdateStatus(id);
-            await _writeRepo.SaveAsync();
-            return Ok(department);
+            return Ok(await _departmentService.UpdateStatusAsync(request));
         }
 
 

@@ -57,6 +57,7 @@ namespace Persistence.Contexts
                 switch (data.State)
                 {
                     case EntityState.Added:
+                        data.Entity.Id = Guid.NewGuid();
                         data.Entity.CreatedDate = DateTime.UtcNow;
                         break;
                     case EntityState.Modified:

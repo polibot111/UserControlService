@@ -54,22 +54,26 @@ namespace Persistence.Repositories
             return Remove(model);
         }
 
-        public bool Update(T model)
+        public async Task<bool> UpdateAsync(T model)
         {
-            EntityEntry entity = Table.Update(model);
-            return entity.State == EntityState.Modified;
+            return await Task.Run(() =>
+            {
+                EntityEntry entity = Table.Update(model);
+                return entity.State == EntityState.Modified;
+            });
         }
 
-        public async Task<bool> UpdateStatus(string id)
+
+        public async Task<bool> UpdateStatusAsync(string id)
         {
             T? model = await Table.FirstOrDefaultAsync(data => data.Id == Guid.Parse(id));
             if (model != null)
             {
                 model.Status = false;
-                return Update(model);
+                return await UpdateAsync(model);
             }
             else { return false; }
-           
+
 
         }
 
