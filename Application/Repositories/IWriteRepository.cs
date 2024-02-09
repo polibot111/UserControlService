@@ -13,8 +13,8 @@ namespace Application.Repositories
         bool Remove(T model);
         bool RemoveRange(List<T> datas);
         Task<bool> RemoveAsync(string id);
-        bool Update(T model);
-        Task<bool> UpdateStatus(string id);
+        Task<bool> UpdateAsync(T model);
+        Task<bool> UpdateStatusAsync(string id);
         Task<int> SaveAsync();
     }
 }

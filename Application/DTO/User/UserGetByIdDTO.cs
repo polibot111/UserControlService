@@ -1,18 +1,20 @@
-﻿using System;
+﻿using Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities.Common
+namespace Application.DTO.User
 {
-    public class BaseEntity
+    public class UserGetByIdDTO
     {
         public Guid Id { get; set; }
+        public string Mail { get; set; }
+        public Guid RoleId { get; set; }
+        public string RoleName { get; set; }
+
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
-        public Guid? CreatedBy{ get; set; }
-        public Guid? UpdatedBy { get; set; }
-        public bool Status { get; set; } = true;
     }
 }

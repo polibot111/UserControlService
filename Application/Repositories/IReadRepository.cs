@@ -9,10 +9,12 @@ namespace Application.Repositories
 {
     public interface IReadRepository<T> : IRepository<T> where T : class
     {
-        IQueryable<T> GetAll(bool tracking = true);
-        IQueryable<T> GetWhere(Expression<Func<T, bool>> method, bool tracking = true);
+        Task<IQueryable<T>> GetAll(bool tracking = true);
+        Task<IQueryable<T>> GetWhere(Expression<Func<T, bool>> method, bool tracking = true);
 
         Task<T> GetSingleAsync(Expression<Func<T, bool>> method, bool tracking = true);
+        Task<IQueryable<T>> GetAllWithIncludeAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+        Task<T> GetSingleWithIncludeAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
 
         Task<T> GetByIdAsync(string id, bool tracking = true);
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Application.Mapper;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Application
     {
         public static void AddApplicationServices(this IServiceCollection services)
         {
-
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
         }
     }
 }

@@ -24,20 +24,53 @@ namespace Persistence.Repositories
 
         public DbSet<T> Table => _context.Set<T>();
 
-        public IQueryable<T> GetAll(bool tracking = true)
+        public async Task<IQueryable<T>> GetAll(bool tracking = true)
         {
-            var query = Table.AsQueryable();
-            if (!tracking)
-                query = query.AsNoTracking();
-            return query;
+            return await Task.Run(() =>
+            {
+                IQueryable<T> query = Table.AsQueryable();
+                if (!tracking)
+                    query = query.AsNoTracking();
+
+                return query;
+            });
 
         }
-        public IQueryable<T> GetWhere(Expression<Func<T, bool>> method, bool tracking = true)
+        public async Task<IQueryable<T>> GetAllWithIncludeAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
-            var query = Table.Where(method);
-            if (!tracking)
-                query = query.AsNoTracking();
-            return query;
+            IQueryable<T> query = Table.Where(predicate);
+            return await Task.Run(() =>
+            {
+                if (includes != null)
+                {
+                    query = includes.Aggregate(query, (current, include) => current.Include(include));
+                }
+                return query;
+            });
+        }
+
+        public async Task<T> GetSingleWithIncludeAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = Table.Where(predicate);
+            return await Task.Run(() =>
+            {
+                if (includes != null)
+                {
+                    query = includes.Aggregate(query, (current, include) => current.Include(include));
+                }
+                return query.FirstOrDefaultAsync();
+            });
+        }
+
+        public async Task<IQueryable<T>> GetWhere(Expression<Func<T, bool>> method, bool tracking = true)
+        {
+            return await Task.Run(() =>
+            {
+                var query = Table.Where(method);
+                if (!tracking)
+                    query = query.AsNoTracking();
+                return query;
+            });
         }
 
         public async Task<T> GetSingleAsync(Expression<Func<T, bool>> method, bool tracking = true)
@@ -49,7 +82,7 @@ namespace Persistence.Repositories
             return await query.FirstOrDefaultAsync(method);
         }
 
-        public async Task<T> GetByIdAsync(string id, bool tracking = true) 
+        public async Task<T> GetByIdAsync(string id, bool tracking = true)
         {
             var query = Table.AsQueryable();
             if (!tracking)
