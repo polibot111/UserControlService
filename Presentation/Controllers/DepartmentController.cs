@@ -17,6 +17,15 @@ namespace Presentation.Controllers
         }
         readonly private IDepartmentService _departmentService;
 
+
+
+        [HttpGet("{Page}/{Size}")]
+        public async Task<IActionResult> GetAllWithPagination([FromRoute] DepartmentDetailPaginationQuery request)
+        {
+            return Ok(await _departmentService.GetAllWithPaginationAsync(request));
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

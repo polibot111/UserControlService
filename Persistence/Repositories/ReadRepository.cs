@@ -1,4 +1,6 @@
-﻿using Application.Repositories;
+﻿using Application.PaginationParameters;
+using Application.Repositories;
+using Application.RequestParameters;
 using Domain.Entities.Common;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Contexts;
@@ -23,6 +25,31 @@ namespace Persistence.Repositories
         private readonly ProjectDbContext _context;
 
         public DbSet<T> Table => _context.Set<T>();
+
+        public async Task<PaginationResult<T>> PaginateAsync<D>(Expression<Func<T, bool>> predicate, D pagination , params Expression<Func<T, object>>[] includes) where D : Pagination
+        {
+            IQueryable<T> query = Table.Where(predicate);
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            int totalCount = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pagination.Size);
+            pagination.Page = Math.Min(Math.Max(pagination.Page, 1), totalPages);
+            int startIndex = (pagination.Page - 1) * pagination.Size;
+
+            List<T> items = await query.Skip(startIndex).Take(pagination.Size).ToListAsync();
+
+            return new PaginationResult<T>
+            {
+                Items = items.AsQueryable(),
+                TotalCount = totalCount,
+                PageNumber = pagination.Page,
+                PageSize = pagination.Size
+            };
+        }
 
         public async Task<IQueryable<T>> GetAll(bool tracking = true)
         {
