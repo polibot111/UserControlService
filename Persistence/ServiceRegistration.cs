@@ -1,14 +1,11 @@
 ﻿using Application.Repositories.Department;
-using Application.Repositories.Role;
-using Application.Repositories.User;
 using Application.Repositories.UserDetail;
-using Application.Services;
+using Application.Services.Persistence;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Contexts;
 using Persistence.Repositories.Department;
-using Persistence.Repositories.Role;
-using Persistence.Repositories.User;
 using Persistence.Repositories.UserDetail;
 using Persistence.Services;
 using System;
@@ -25,14 +22,20 @@ namespace Persistence
         {
             services.AddDbContext<ProjectDbContext>(options => options.UseNpgsql(Configuration.ConnectionString));
 
+            services.AddIdentity<User, Role>(options =>
+            {
+                options.Password.RequiredLength = 3;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+
+            }).AddEntityFrameworkStores<ProjectDbContext>();
+
             #region Repostories
 
             services.AddScoped<IDepartmentReadRepo, DepartmentReadRepo>();
             services.AddScoped<IDepartmentWriteRepo, DepartmentWriteRepo>();
-            services.AddScoped<IRoleReadRepo, RoleReadRepo>();
-            services.AddScoped<IRoleWriteRepo, RoleWriteRepo>();
-            services.AddScoped<IUserReadRepo, UserReadRepo>();
-            services.AddScoped<IUserWriteRepo, UserWriteRepo>();
             services.AddScoped<IUserDetailReadRepo, UserDetailReadRepo>();
             services.AddScoped<IUserDetailWriteRepo, UserDetailWriteRepo>();
 
@@ -41,9 +44,9 @@ namespace Persistence
             #region Services
 
             services.AddScoped<IDepartmentService, DepartmentService>();
-            services.AddScoped<IUserService,UserService>();
-            services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUserDetailService, UserDetailService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             #endregion
 

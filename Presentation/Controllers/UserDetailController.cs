@@ -1,6 +1,6 @@
-﻿using Application.CQRS.UserDetail;
-using Application.DTO.UserDetail;
-using Application.Services;
+﻿using Application.CQRS.Persistence.UserDetail;
+using Application.DTO.Persistence.UserDetail;
+using Application.Services.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

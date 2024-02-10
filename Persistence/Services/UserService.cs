@@ -1,16 +1,17 @@
-﻿using Application.CQRS.User;
-using Application.DTO.User;
-using Application.Repositories.Role;
-using Application.Repositories.User;
-using Application.Services;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using Application.CQRS.Infrastructure.Login;
+using Application.CQRS.Persistence.User;
+using Application.CQRS.Persistence.Role;
+using Application.DTO.Persistence.User;
+using Application.Exceptions;
+using Application.Services.Persistence;
+using Application.Wrappers;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Security.Cryptography;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,106 +19,55 @@ namespace Persistence.Services
 {
     public class UserService : IUserService
     {
-        public UserService(IUserReadRepo readRepo, IUserWriteRepo writeRepo, IMapper mapper, IRoleReadRepo roleReadRepo)
+        public UserService(UserManager<User> userManager, IConfiguration configuration)
         {
-            _readRepo = readRepo;
-            _writeRepo = writeRepo;
-            _mapper = mapper;
-            _roleReadRepo = roleReadRepo;
+            _userManager = userManager;
+            _configuration = configuration;
         }
 
-        readonly private IUserReadRepo _readRepo;
-        readonly private IUserWriteRepo _writeRepo;
-        readonly private IRoleReadRepo _roleReadRepo;
-        readonly private IMapper _mapper;
+        readonly UserManager<User> _userManager;
 
-        public async Task<IQueryable<UserDTO>> GetAllAsync()
+        readonly IConfiguration _configuration;
+
+        public async Task<bool> CreateUser(UserInsertCommand request)
         {
-            try
+            var result = await _userManager.CreateAsync(new()
             {
-                var users = await _readRepo.GetAll();
-                IQueryable<UserDTO> result = users.ProjectTo<UserDTO>(_mapper.ConfigurationProvider);
-                return result;
+                Id = Guid.NewGuid().ToString(),
+                UserName = request.UserName,
+
+            }, request.Password);
+
+            if (result.Succeeded)
+            {
+                return result.Succeeded;
             }
-            catch (Exception)
+            else
             {
+                StringBuilder sb = new StringBuilder();
 
-                throw;
+                foreach (var item in result.Errors)
+                {
+                    sb.AppendLine(item.Description);
+                }
+
+                string response = sb.ToString();
+                throw new Exception(response);
             }
-
         }
 
-        public async Task<UserGetByIdDTO> GetById(UserQuery request)
+        public async Task UpdateRefreshToken(string refreshToken, User user, DateTime accessTokenDate)
         {
-
-            var users = await _readRepo.GetWhere(x => x.Id == request.Id);
-            IQueryable<UserGetByIdDTO> results = users.ProjectTo<UserGetByIdDTO>(_mapper.ConfigurationProvider);
-            UserGetByIdDTO result = results.First();
-
-            return result;
-
-
-        }
-
-        public async Task<UserGetByIdDTO> GetByIdWithRoleId(UserQuery request)
-        {
-
-            var users = await _readRepo.GetSingleWithIncludeAsync(
-                predicate: user => user.Id == request.Id,
-                includes: user => user.Role);
-            UserGetByIdDTO result = _mapper.Map<UserGetByIdDTO>(users);
-
-
-            return result;
-
-
-        }
-
-        public async Task<bool> AddAsync(UserInsertCommand request)
-        {
-
-            using MD5 md5Hash = MD5.Create();
-            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(request.Password));
-            StringBuilder password = new StringBuilder();
-
-            foreach (var item in data)
+            if (user != null)
             {
-                password.Append(item.ToString("x2").ToLower());
+                int expireDaye = Convert.ToInt32(_configuration["RefreshTokenExpireDay"]);
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenEndDay = DateTime.UtcNow.AddDays(expireDaye);
+
+                await _userManager.UpdateAsync(user);
             }
-
-            bool result = await _writeRepo.AddAsync(new()
-            {
-                Mail = request.Mail,
-                Password = password.ToString(),
-                Role = await _roleReadRepo.GetByIdAsync(request.RoleId.ToString())
-            });
-            await _writeRepo.SaveAsync();
-            return result;
-        }
-
-        public async Task<bool> UpdateUserPasswordAsync(UserUpdateCommand request)
-        {
-            using MD5 md5Hash = MD5.Create();
-            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(request.Password));
-            StringBuilder password = new StringBuilder();
-
-            foreach (var item in data)
-            {
-                password.Append(item.ToString("x2").ToLower());
-            }
-
-            var user = await _readRepo.GetByIdAsync(request.Id.ToString());
-            user.Password = password.ToString();
-
-            await _writeRepo.SaveAsync();
-            return true;
-        }
-
-        public async Task<bool> UpdateStatusAsync(UserUpdateStatusCommand request)
-        {
-            bool result = await _writeRepo.UpdateStatusAsync(request.Id.ToString());
-            await _writeRepo.SaveAsync();
-            return result;
+            else
+                throw new Exception(ExceptionMessages.NotFoundUser);
         }
     }
 }

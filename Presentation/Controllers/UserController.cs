@@ -1,7 +1,7 @@
-﻿using Application.CQRS.Role;
-using Application.CQRS.User;
-using Application.DTO.User;
-using Application.Services;
+﻿using Application.CQRS.Infrastructure.Login;
+using Application.CQRS.Persistence.User;
+using Application.Services.Infrastructure;
+using Application.Services.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,40 +11,33 @@ namespace Presentation.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        public UserController(IUserService service)
+        public UserController(IUserService userService, ILoginOperations loginOperations)
         {
-            _service = service;
+            _userService = userService;
+            _loginOperations = loginOperations;
         }
-        readonly private IUserService _service;
+        readonly private IUserService _userService;
+        readonly private ILoginOperations _loginOperations;
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            return Ok(await _service.GetAllAsync());
-        }
-
-        [HttpGet("{Id}")]
-        public async Task<IActionResult> GetById([FromRoute] UserQuery request)
-        {
-            return Ok(await _service.GetByIdWithRoleId(request));
-        }
 
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] UserInsertCommand request)
         {
-            return Ok(await _service.AddAsync(request));
+            return Ok(await _userService.CreateUser(request));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UserUpdateCommand request)
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            return Ok(await _service.UpdateUserPasswordAsync(request));
+            return Ok(await _loginOperations.Login(request));
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Delete([FromBody] UserUpdateStatusCommand request)
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> RefreshTokenLogin([FromBody] LoginWithRefreshTokenRequest request)
         {
-            return Ok(await _service.UpdateStatusAsync(request));
+            return Ok(await _loginOperations.RefreshTokenLogin(request));
         }
     }
 }

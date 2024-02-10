@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Common;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : IdentityUser<string>
     {
-        public string Mail { get; set; }
-        public string Password { get; set; }
-        public Role Role { get; set; }
+        public bool Status { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTime? RefreshTokenEndDay { get; set; }
 
     }
 }
