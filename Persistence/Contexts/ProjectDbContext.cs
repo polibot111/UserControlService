@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Common;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Persistence.Contexts
 {
-    public class ProjectDbContext : DbContext
+    public class ProjectDbContext : IdentityDbContext<User,Role,string>
     {
         public ProjectDbContext(DbContextOptions options) : base(options)
         {
@@ -49,24 +50,33 @@ namespace Persistence.Contexts
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var datas = ChangeTracker
-                .Entries<BaseEntity>();
-
-            foreach (var data in datas)
+            try
             {
-                switch (data.State)
-                {
-                    case EntityState.Added:
-                        data.Entity.Id = Guid.NewGuid();
-                        data.Entity.CreatedDate = DateTime.UtcNow;
-                        break;
-                    case EntityState.Modified:
-                        data.Entity.UpdatedDate = DateTime.UtcNow;
-                        break;
-                };
-            }
+                var datas = ChangeTracker
+              .Entries<BaseEntity>();
 
-            return await base.SaveChangesAsync(cancellationToken);
+                foreach (var data in datas)
+                {
+                    switch (data.State)
+                    {
+                        case EntityState.Added:
+                            data.Entity.Id = Guid.NewGuid();
+                            data.Entity.CreatedDate = DateTime.UtcNow;
+                            break;
+                        case EntityState.Modified:
+                            data.Entity.UpdatedDate = DateTime.UtcNow;
+                            break;
+                    };
+                }
+
+                return await base.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+          
         }
     }
 }

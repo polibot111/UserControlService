@@ -1,6 +1,6 @@
-﻿using Application.CQRS.Department;
+﻿using Application.CQRS.Persistence.Department;
 using Application.Repositories.Department;
-using Application.Services;
+using Application.Services.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

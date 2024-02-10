@@ -1,8 +1,8 @@
-﻿using Application.CQRS.Department;
-using Application.DTO.Department;
+﻿using Application.CQRS.Persistence.Department;
+using Application.DTO.Persistence.Department;
 using Application.PaginationParameters;
 using Application.Repositories.Department;
-using Application.Services;
+using Application.Services.Persistence;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Entities;

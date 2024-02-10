@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Application.Services.Infrastructure;
+using Infrastructure.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,8 @@ namespace Infrastructure
     {
         public static void AddInfrastructureServices(this IServiceCollection services)
         {
-
+            services.AddScoped<ILoginOperations, LoginOperations>();
+            services.AddScoped<ITokenHandler, TokenHandler>();
         }
     }
 }

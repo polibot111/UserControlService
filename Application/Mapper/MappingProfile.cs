@@ -1,7 +1,7 @@
-﻿using Application.DTO.Department;
-using Application.DTO.Role;
-using Application.DTO.User;
-using Application.DTO.UserDetail;
+﻿using Application.DTO.Persistence.Department;
+using Application.DTO.Persistence.Role;
+using Application.DTO.Persistence.User;
+using Application.DTO.Persistence.UserDetail;
 using AutoMapper;
 using Domain.Entities;
 using System;
@@ -21,9 +21,7 @@ namespace Application.Mapper
             CreateMap<Role, RoleDTO>();
             CreateMap<Role, RoleGetByIDDTO>();
             CreateMap<User, UserDTO>();
-            CreateMap<User, UserGetByIdDTO>()
-                .ForMember(x => x.RoleId, opt => opt.MapFrom(src => src.Role.Id))
-                .ForMember(x => x.RoleName, opt => opt.MapFrom(src => src.Role.RoleName));
+
 
             CreateMap<UserDetail,UserDetailDTO>()
                 .ForMember(x => x.UserId, opt => opt.MapFrom(src => src.User.Id))
@@ -31,7 +29,7 @@ namespace Application.Mapper
 
             CreateMap<UserDetail, UserDetailGetByIdDTO>()
                 .ForMember(x => x.UserId, opt => opt.MapFrom(src => src.User.Id))
-                .ForMember(x => x.Mail, opt => opt.MapFrom(src => src.User.Mail))
+                .ForMember(x => x.Mail, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(x => x.DepartmentName, opt => opt.MapFrom(src => src.Department.DepartmentName));
                 
           

@@ -1,10 +1,10 @@
 ﻿
-using Application.CQRS.UserDetail;
-using Application.DTO.UserDetail;
+using Application.CQRS.Persistence.UserDetail;
+using Application.DTO.Persistence.UserDetail;
 using Application.Repositories.Department;
 using Application.Repositories.User;
 using Application.Repositories.UserDetail;
-using Application.Services;
+using Application.Services.Persistence;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Entities;
@@ -21,17 +21,16 @@ namespace Persistence.Services
     public class UserDetailService : IUserDetailService
     {
         public UserDetailService(IUserDetailReadRepo userDetailReadRepo, IUserDetailWriteRepo userDetailWriteRepo, IDepartmentReadRepo departmentReadRepo
-            , IUserReadRepo userReadRepo, IMapper mapper)
+            , IMapper mapper)
         {
             _userDetailReadRepo = userDetailReadRepo;
             _userDetailWriteRepo = userDetailWriteRepo;
             _departmentReadRepo = departmentReadRepo;
-            _userReadRepo = userReadRepo;
+
             _mapper = mapper;
         }
         readonly private IUserDetailReadRepo _userDetailReadRepo;
         readonly private IUserDetailWriteRepo _userDetailWriteRepo;
-        readonly private IUserReadRepo _userReadRepo;
         readonly private IDepartmentReadRepo _departmentReadRepo;
         readonly private IMapper _mapper;
 
@@ -73,7 +72,6 @@ namespace Persistence.Services
                 Surname = request.Surname,
                 PhoneNumber = request.PhoneNumber,
                 Department = await _departmentReadRepo.GetByIdAsync(request.DepartmentId.ToString()),
-                User = await _userReadRepo.GetByIdAsync(request.UserId.ToString())
             });
             await _userDetailWriteRepo.SaveAsync();
             return result;
