@@ -11,8 +11,12 @@ namespace Domain.Entities
     public class User : IdentityUser<string>
     {
         public bool Status { get; set; }
-        public string RefreshToken { get; set; }
+        public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenEndDay { get; set; }
+
+        public Role? Role { get; set; }
+
+        public UserDetail? Detail { get; set; }
 
     }
 }

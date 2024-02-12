@@ -12,6 +12,7 @@ namespace Domain.Entities
         public string Name { get; set; }
         public string Surname { get; set; }
         public string PhoneNumber { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
         public Department Department { get; set; }
     }

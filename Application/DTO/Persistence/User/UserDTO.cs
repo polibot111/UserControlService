@@ -8,8 +8,12 @@ namespace Application.DTO.Persistence.User
 {
     public class UserDTO
     {
-        public Guid Id { get; set; }
-        public string Mail { get; set; }
-        public Guid RoleId { get; set; }
+        public string Id { get; set; }
+        public string UserName { get; set; }
+
+        public string RoleId { get; set; }
+        public string RoleName { get; set; }
+        public string DepartmentName { get; set; }
+        public string DepartmentId { get; set; }
     }
 }

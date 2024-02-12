@@ -2,7 +2,6 @@
 using Application.CQRS.Persistence.User;
 using Application.CQRS.Persistence.Role;
 using Application.DTO.Persistence.User;
-using Application.Exceptions;
 using Application.Services.Persistence;
 using Application.Wrappers;
 using Domain.Entities;
@@ -14,20 +13,29 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Consts.Exceptions;
+using Application.RequestParameters;
+using Microsoft.EntityFrameworkCore;
+using Application.PaginationParameters;
+using Application.Repositories.Endpoint;
 
 namespace Persistence.Services
 {
     public class UserService : IUserService
     {
-        public UserService(UserManager<User> userManager, IConfiguration configuration)
+        public UserService(UserManager<User> userManager, IConfiguration configuration, RoleManager<Role> roleManager, IEndpointReadRepo endpointReadRepo)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _roleManager = roleManager;
+            _endpointReadRepo = endpointReadRepo;
         }
 
         readonly UserManager<User> _userManager;
+        readonly RoleManager<Role> _roleManager;
 
         readonly IConfiguration _configuration;
+        readonly IEndpointReadRepo _endpointReadRepo;
 
         public async Task<bool> CreateUser(UserInsertCommand request)
         {
@@ -68,6 +76,91 @@ namespace Persistence.Services
             }
             else
                 throw new Exception(ExceptionMessages.NotFoundUser);
+        }
+
+        public async Task<PaginationResult<UserDTO>> GetAllUsersWithPagination(Pagination pagination)
+        {
+            var query = await _userManager.Users.Include(x => x.Role).Include(x => x.Detail).ThenInclude(ud => ud.Department).ToListAsync();
+
+
+            int totalCount = query.Count;
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pagination.Size);
+            pagination.Page = Math.Min(Math.Max(pagination.Page, 1), totalPages);
+            int startIndex = (pagination.Page - 1) * pagination.Size;
+
+            var users = query
+                        .Skip(startIndex)
+                        .Take(pagination.Size).ToList();
+            ;
+
+            IQueryable<UserDTO> result = query.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                DepartmentName = user.Detail.Department.DepartmentName,
+                RoleId = user.Role.Id,
+                RoleName = user.Role.Name
+
+            }).AsQueryable();
+
+            return new()
+            {
+                Items = result,
+                PageNumber = pagination.Page,
+                TotalCount = totalCount,
+                PageSize = pagination.Size
+            };
+        }
+
+        public async Task<bool> UpdateUserRole(UserCommandForUserRole request)
+        {
+            User user = await _userManager.FindByIdAsync(request.UserId);
+            if (user != null)
+            {
+                user.Role = await _roleManager.FindByIdAsync(request.RoleId);
+                IdentityResult result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return true;
+                }
+
+            }
+            throw new Exception(ExceptionMessages.NotFoundUser);
+
+        }
+
+        public async Task<bool> UpdatePassword(UserCommandForPassword request)
+        {
+            User user = await _userManager.FindByIdAsync(request.Id);
+            if (user != null)
+            {
+
+                IdentityResult result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    return true;
+                }
+            }
+
+            throw new Exception(ExceptionMessages.WrongPassword);
+        }
+
+        public async Task<bool> HasRolePermissionToEndpointAsync(string name, string code)
+        {
+            User? userWithRole = await _userManager.Users.Include(x => x.Role).FirstOrDefaultAsync(u => u.UserName == name);
+
+            if (userWithRole.Role == null) return false;
+
+            Endpoint? endpoint = await _endpointReadRepo.Table
+                .Include(e => e.Roles)
+                .FirstOrDefaultAsync(e => e.Code == code);
+
+            if (endpoint == null) return false;
+
+            return true;
+                
         }
     }
 }

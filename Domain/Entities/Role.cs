@@ -10,7 +10,12 @@ namespace Domain.Entities
 {
     public class Role: IdentityRole<string>
     {
-        public string RoleName { get; set; }
+        public Role()
+        {
+            Endpoint = new List<Endpoint>();
+        }
         public bool Status { get; set; }
+
+        public ICollection<Endpoint> Endpoint { get; set; }
     }
 }

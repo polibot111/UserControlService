@@ -1,11 +1,15 @@
-﻿using Application.CQRS.Persistence.Role;
+﻿using Application.Consts.Exceptions;
+using Application.CQRS.Persistence.Role;
 using Application.DTO.Persistence.Role;
 using Application.Services.Persistence;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,32 +27,66 @@ namespace Persistence.Services
 
         readonly RoleManager<Role> _roleManager;
         readonly private IMapper _mapper;
-        public Task<bool> AddAsync(RoleInsertCommand request)
+        public async Task<bool> CreateRoleAsync(RoleInsertCommand request)
         {
-            throw new NotImplementedException();
-        }
+            #region RoleNameControl
+            var existingRole = await _roleManager.FindByNameAsync(request.RoleName);
+            if (existingRole != null && existingRole.Status == true)
+            {
+                throw new Exception(ExceptionMessages.RoleNameControl);
+            }
+            #endregion
 
-        public Task<IQueryable<RoleDTO>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
+            IdentityResult result = await _roleManager.CreateAsync(new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = request.RoleName
+            });
 
-        public async Task<RoleGetByIDDTO> GetById(RoleDetailQuery request)
-        {
-            var rol = _roleManager.Roles;
-            Role role = (Role)_roleManager.Roles.Where(x => x.Id == request.Id);
-            RoleGetByIDDTO result =_mapper.Map<RoleGetByIDDTO>(role);
-            return result;
-        }
+            if (result.Succeeded)
+            {
+                return true;
+            }
+            StringBuilder sb = new StringBuilder();
+            foreach (var role in result.Errors)
+            {
+                sb.AppendLine(role.Description + "\n");
+            }
 
-        public Task<bool> UpdateAsync(RoleUpdateCommand request)
-        {
-            throw new NotImplementedException();
-        }
+            throw new Exception(sb.ToString());
+        
 
-        public Task<bool> UpdateStatusAsync(RoleUpdateStatusCommand request)
-        {
-            throw new NotImplementedException();
-        }
+
+
     }
+
+    public async Task<IQueryable<RoleDTO>> GetAllAsync()
+    {
+        List<Role> roles = await _roleManager.Roles.ToListAsync();
+        IQueryable queryableRoles = roles.AsQueryable();
+        IQueryable<RoleDTO> result = queryableRoles.ProjectTo<RoleDTO>(_mapper.ConfigurationProvider);
+        return result;
+    }
+
+    public async Task<RoleGetByIDDTO> GetById(RoleDetailQuery request)
+    {
+        var rol = _roleManager.Roles;
+        Role? role = await _roleManager.FindByIdAsync(request.Id);
+        RoleGetByIDDTO result = _mapper.Map<RoleGetByIDDTO>(role);
+        return result;
+    }
+
+
+    public async Task<bool> UpdateStatusAsync(RoleUpdateStatusCommand request)
+    {
+        Role? role = await _roleManager.FindByIdAsync(request.Id);
+        if (role != null)
+        {
+            role.Status = false;
+            await _roleManager.UpdateAsync(role);
+            return true;
+        }
+        return false;
+    }
+}
 }

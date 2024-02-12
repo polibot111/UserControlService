@@ -2,7 +2,6 @@
 using Application.DTO.Infrastructure;
 using Application.Services.Infrastructure;
 using Application.Services.Persistence;
-using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -12,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Authentication;
+using Application.Consts.Exceptions;
 
 namespace Infrastructure.Services
 {
@@ -44,7 +44,7 @@ namespace Infrastructure.Services
 
             if (result.Succeeded)
             {
-                var token = _tokenHandler.CreateAccessToken();
+                var token = _tokenHandler.CreateAccessToken(user);
                 await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration);
                 return token;
             }
@@ -60,7 +60,7 @@ namespace Infrastructure.Services
 
             if (user != null && user?.RefreshTokenEndDay > DateTime.UtcNow)
             {
-                UserToken token = _tokenHandler.CreateAccessToken();
+                UserToken token = _tokenHandler.CreateAccessToken(user);
                 await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration);
                 return token;
             }

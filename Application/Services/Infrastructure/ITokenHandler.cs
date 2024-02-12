@@ -1,4 +1,5 @@
 ﻿using Application.DTO.Infrastructure;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Application.Services.Infrastructure
 {
     public interface ITokenHandler
     {
-        UserToken CreateAccessToken();
+        UserToken CreateAccessToken(User user);
         string CreateRefreshToken();
     }
 }
