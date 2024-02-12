@@ -32,10 +32,7 @@ namespace Infrastructure.Services
         public async Task<UserToken> Login(LoginRequest request)
         {
 
-            var user = await _userManager.FindByNameAsync(request.UsernameOrEmail);
-
-            if (user == null)
-                user = await _userManager.FindByEmailAsync(request.UsernameOrEmail);
+            var user = await _userManager.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.UserName == request.UsernameOrEmail);
 
             if (user == null)
                 throw new Exception(ExceptionMessages.NotFoundUser);
