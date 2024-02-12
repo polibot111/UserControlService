@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Application.CQRS.Persistence.User
 {
-    public class UserQuery
+    public class UserCommandForUserRole
     {
-        public string Id { get; set; }
+        public string RoleId { get; set; }
+        public string UserId { get; set; }
     }
 }

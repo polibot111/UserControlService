@@ -13,8 +13,7 @@ namespace Application.Services.Persistence
     {
         Task<IQueryable<RoleDTO>> GetAllAsync();
         Task<RoleGetByIDDTO> GetById(RoleDetailQuery request);
-        Task<bool> AddAsync(RoleInsertCommand request);
-        Task<bool> UpdateAsync(RoleUpdateCommand request);
+        Task<bool> CreateRoleAsync(RoleInsertCommand request);
         Task<bool> UpdateStatusAsync(RoleUpdateStatusCommand request);
     }
 }

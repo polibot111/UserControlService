@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.CQRS.Persistence.Role
+namespace Application.Repositories.Endpoint
 {
-    public class RoleUpdateStatusCommand
+    public interface IEndpointReadRepo: IReadRepository<Domain.Entities.Endpoint>
     {
-        public string Id { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Persistence.Contexts
 {
@@ -21,6 +22,8 @@ namespace Persistence.Contexts
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserDetail> UserDetails { get; set; }
+        public DbSet<Endpoint> Endpoints{ get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -45,6 +48,11 @@ namespace Persistence.Contexts
             modelBuilder.Entity<UserDetail>()
                 .Property(ud => ud.Status)
                 .HasDefaultValue(true);
+
+            modelBuilder.Entity<UserDetail>()
+       .HasOne(ud => ud.User)
+       .WithOne(u => u.Detail) 
+       .HasForeignKey<UserDetail>(ud => ud.UserId);
 
         }
 

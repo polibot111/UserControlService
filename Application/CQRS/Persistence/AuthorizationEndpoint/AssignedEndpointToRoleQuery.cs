@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTO.Persistence.Role
+namespace Application.CQRS.Persistence.AuthorizationEndpoint
 {
-    public class RoleDTO
+    public class AssignedEndpointToRoleQuery
     {
         public string Id { get; set; }
-        public string RoleName { get; set; }
     }
 }

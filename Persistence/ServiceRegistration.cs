@@ -1,4 +1,5 @@
 ﻿using Application.Repositories.Department;
+using Application.Repositories.Endpoint;
 using Application.Repositories.UserDetail;
 using Application.Services.Persistence;
 using Domain.Entities;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Contexts;
 using Persistence.Repositories.Department;
+using Persistence.Repositories.Endpoint;
 using Persistence.Repositories.UserDetail;
 using Persistence.Services;
 using System;
@@ -39,6 +41,9 @@ namespace Persistence
             services.AddScoped<IUserDetailReadRepo, UserDetailReadRepo>();
             services.AddScoped<IUserDetailWriteRepo, UserDetailWriteRepo>();
 
+            services.AddScoped<IEndpointWriteRepo, EndpointWriteRepo>();
+            services.AddScoped<IEndpointReadRepo, EndpointReadRepo>();
+
             #endregion
 
             #region Services
@@ -47,7 +52,12 @@ namespace Persistence
             services.AddScoped<IUserDetailService, UserDetailService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IAuthorizationEndpointService, AuthorizationEndpointService>();
 
+            #endregion
+
+            #region DummyDataCreater
+            services.AddScoped<DummyDataCreater>();
             #endregion
 
 

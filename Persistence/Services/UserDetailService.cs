@@ -8,6 +8,7 @@ using Application.Services.Persistence;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,17 +22,19 @@ namespace Persistence.Services
     public class UserDetailService : IUserDetailService
     {
         public UserDetailService(IUserDetailReadRepo userDetailReadRepo, IUserDetailWriteRepo userDetailWriteRepo, IDepartmentReadRepo departmentReadRepo
-            , IMapper mapper)
+            , IMapper mapper, UserManager<User> userManager)
         {
             _userDetailReadRepo = userDetailReadRepo;
             _userDetailWriteRepo = userDetailWriteRepo;
             _departmentReadRepo = departmentReadRepo;
 
             _mapper = mapper;
+            _userManager = userManager;
         }
         readonly private IUserDetailReadRepo _userDetailReadRepo;
         readonly private IUserDetailWriteRepo _userDetailWriteRepo;
         readonly private IDepartmentReadRepo _departmentReadRepo;
+        readonly private UserManager<User> _userManager;
         readonly private IMapper _mapper;
 
         public async Task<IQueryable<UserDetailDTO>> GetAllAsync()
@@ -72,6 +75,7 @@ namespace Persistence.Services
                 Surname = request.Surname,
                 PhoneNumber = request.PhoneNumber,
                 Department = await _departmentReadRepo.GetByIdAsync(request.DepartmentId.ToString()),
+                User = await _userManager.FindByIdAsync(request.UserId.ToString())
             });
             await _userDetailWriteRepo.SaveAsync();
             return result;

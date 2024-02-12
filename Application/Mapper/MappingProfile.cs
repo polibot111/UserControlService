@@ -1,4 +1,5 @@
 ﻿using Application.DTO.Persistence.Department;
+using Application.DTO.Persistence.Endpoint;
 using Application.DTO.Persistence.Role;
 using Application.DTO.Persistence.User;
 using Application.DTO.Persistence.UserDetail;
@@ -31,8 +32,10 @@ namespace Application.Mapper
                 .ForMember(x => x.UserId, opt => opt.MapFrom(src => src.User.Id))
                 .ForMember(x => x.Mail, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(x => x.DepartmentName, opt => opt.MapFrom(src => src.Department.DepartmentName));
-                
-          
+
+
+
+
         }
     }
 }

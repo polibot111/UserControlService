@@ -1,4 +1,5 @@
 ﻿using Application.Services.Infrastructure;
+using Application.Services.Infrastructure.Configuration;
 using Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,6 +16,7 @@ namespace Infrastructure
         {
             services.AddScoped<ILoginOperations, LoginOperations>();
             services.AddScoped<ITokenHandler, TokenHandler>();
+            services.AddScoped<IApplicationService, ApplicationService>();
         }
     }
 }
