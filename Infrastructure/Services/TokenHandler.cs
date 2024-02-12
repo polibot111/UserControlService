@@ -41,7 +41,7 @@ namespace Infrastructure.Services
                 expires: token.Expiration,
                 notBefore: DateTime.UtcNow,
                 signingCredentials: signingCredentials,
-                claims: new List<Claim> { new(ClaimTypes.Name, user.UserName)}
+                claims: new List<Claim> { new(ClaimTypes.Name, user.UserName), new(ClaimTypes.Role, user.Role.Name)}
                 );
             JwtSecurityTokenHandler tokenHandler = new();
 
