@@ -19,8 +19,10 @@ namespace Application.Mapper
         {
             CreateMap<Department, DepartmentDTO>();
             CreateMap<Department, DepartmentGetByIdDTO>();
-            CreateMap<Role, RoleDTO>();
-            CreateMap<Role, RoleGetByIDDTO>();
+            CreateMap<Role, RoleDTO>()
+                    .ForMember(x => x.RoleName, opt => opt.MapFrom(src => src.Name));
+            CreateMap<Role, RoleGetByIDDTO>()
+                .ForMember(x => x.RoleName, opt => opt.MapFrom(src => src.Name));
             CreateMap<User, UserDTO>();
 
 

@@ -24,10 +24,10 @@ namespace Presentation.Controllers
 
 
 
-        [HttpGet("{Page}/{Size}")]
+        [HttpGet("[action]")]
         [AuthorizeDefination(Menu = AuthorizeDefinitionConstants.Department, ActionType = ActionType.ReadingAll,
             Definition = "Read All Department With Pagination")]
-        public async Task<IActionResult> GetAllWithPagination([FromRoute] DepartmentDetailPaginationQuery request)
+        public async Task<IActionResult> GetAllWithPagination([FromQuery] DepartmentDetailPaginationQuery request)
         {
             return Ok(await _departmentService.GetAllWithPaginationAsync(request));
         }

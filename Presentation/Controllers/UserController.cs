@@ -24,16 +24,16 @@ namespace Presentation.Controllers
         readonly private IUserService _userService;
         readonly private ILoginOperations _loginOperations;
 
-        [HttpGet("{Page}/{Size}")]
+        [HttpGet]
         [Authorize(AuthenticationSchemes = "Admin")]
         [AuthorizeDefination(Menu = AuthorizeDefinitionConstants.User, ActionType = ActionType.ReadingAll,
             Definition = "Read All User With Pagination")]
-        public async Task<IActionResult> GetAllUsersWithPagination(Pagination pagination)
+        public async Task<IActionResult> GetAllUsersWithPagination([FromQuery] Pagination pagination)
         {
             return Ok(await _userService.GetAllUsersWithPagination(pagination));
         }
 
-        [HttpPost]
+        [HttpPost("[action]")]
         public async Task<IActionResult> CreateUser([FromBody] UserInsertCommand request)
         {
             return Ok(await _userService.CreateUser(request));

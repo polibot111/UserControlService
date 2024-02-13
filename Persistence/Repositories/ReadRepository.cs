@@ -37,17 +37,17 @@ namespace Persistence.Repositories
 
             int totalCount = await query.CountAsync();
             int totalPages = (int)Math.Ceiling(totalCount / (double)pagination.Size);
-            pagination.Page = Math.Min(Math.Max(pagination.Page, 1), totalPages);
-            int startIndex = (pagination.Page - 1) * pagination.Size;
+            pagination.Page = Math.Min(Math.Max((int)pagination.Page, 1), totalPages);
+            int startIndex = ((int)pagination.Page - 1) * (int)pagination.Size;
 
-            List<T> items = await query.Skip(startIndex).Take(pagination.Size).ToListAsync();
+            List<T> items = await query.Skip(startIndex).Take((int)pagination.Size).ToListAsync();
 
             return new PaginationResult<T>
             {
                 Items = items.AsQueryable(),
                 TotalCount = totalCount,
-                PageNumber = pagination.Page,
-                PageSize = pagination.Size
+                PageNumber = (int)pagination.Page,
+                PageSize = (int)pagination.Size
             };
         }
 

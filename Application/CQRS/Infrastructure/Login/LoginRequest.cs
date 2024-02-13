@@ -8,7 +8,7 @@ namespace Application.CQRS.Infrastructure.Login
 {
     public class LoginRequest
     {
-        public string UsernameOrEmail { get; set; }
+        public string Username { get; set; }
         public string Password { get; set; }
     }
 }
