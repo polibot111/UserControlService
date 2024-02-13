@@ -41,10 +41,10 @@ namespace Presentation.Controllers
             return Ok(await _departmentService.GetAllAsync());
         }
 
-        [HttpGet("{Id}")]
+        [HttpGet("[action]")]
         [AuthorizeDefination(Menu = AuthorizeDefinitionConstants.Department, ActionType = ActionType.ReadingById,
             Definition = "Read Department")]
-        public async Task<IActionResult> GetById([FromRoute] DepartmentDetailQuery request)
+        public async Task<IActionResult> GetById([FromQuery] DepartmentDetailQuery request)
         {
             return Ok(await _departmentService.GetByIdAsync(request));
         }

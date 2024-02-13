@@ -73,7 +73,7 @@ namespace Persistence.Services
         {
             var result = await _writeDepartment.UpdateAsync(new()
             {
-                Id = request.Id,
+                Id = Guid.Parse(request.Id),
                 DepartmentName = request.DepartmentName
             }) ;
             await _writeDepartment.SaveAsync();
