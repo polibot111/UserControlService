@@ -8,7 +8,7 @@ namespace Application.CQRS.Persistence.Department
 {
     public class DepartmentUpdateCommand
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string DepartmentName { get; set; }
     }
 }
