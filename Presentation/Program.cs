@@ -17,6 +17,10 @@ builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddApplicationServices();
 
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
+policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()
+));
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<RolePermissionFilter>();
@@ -43,8 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Token:SecurityKey"])),
             LifetimeValidator = (notBefore, expires, securityToken, validationParameters) => expires != null ? expires > DateTime.UtcNow : false,
 
-            NameClaimType = ClaimTypes.Name,
-            RoleClaimType = ClaimTypes.Role
+            NameClaimType = ClaimTypes.Name
         };
     }).
     AddJwtBearer("Member", options =>
@@ -79,6 +82,7 @@ app.UseMiddleware<ResponseWrapperMiddleware>();
 
 #endregion
 
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

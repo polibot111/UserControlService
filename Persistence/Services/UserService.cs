@@ -85,30 +85,30 @@ namespace Persistence.Services
 
             int totalCount = query.Count;
             int totalPages = (int)Math.Ceiling(totalCount / (double)pagination.Size);
-            pagination.Page = Math.Min(Math.Max(pagination.Page, 1), totalPages);
-            int startIndex = (pagination.Page - 1) * pagination.Size;
+            pagination.Page = Math.Min(Math.Max((int)pagination.Page, 1), totalPages);
+            int startIndex = ((int)pagination.Page - 1) * (int)pagination.Size;
 
             var users = query
                         .Skip(startIndex)
-                        .Take(pagination.Size).ToList();
+                        .Take((int)pagination.Size).ToList();
             ;
 
-            IQueryable<UserDTO> result = query.Select(user => new UserDTO
+            IQueryable<UserDTO> result = users.Select(user => new UserDTO
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                DepartmentName = user.Detail.Department.DepartmentName,
-                RoleId = user.Role.Id,
-                RoleName = user.Role.Name
+                DepartmentName = user.Detail != null && user.Detail.Department != null ? user.Detail.Department.DepartmentName : null,
+                RoleId = user.Role != null ? user.Role.Id : null,
+                RoleName = user.Role != null ? user.Role.Name : null
 
             }).AsQueryable();
 
             return new()
             {
                 Items = result,
-                PageNumber = pagination.Page,
+                PageNumber = (int)pagination.Page,
                 TotalCount = totalCount,
-                PageSize = pagination.Size
+                PageSize = (int)pagination.Size
             };
         }
 
